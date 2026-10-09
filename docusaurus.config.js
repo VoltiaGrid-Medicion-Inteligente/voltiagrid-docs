@@ -35,9 +35,9 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          routeBasePath: '/',
           sidebarPath: './sidebars.js',
-          editUrl:
-            'https://github.com/VoltiaGrid-Medicion-Inteligente/voltiagrid-docs/tree/develop/',
+          editUrl: 'https://github.com/VoltiaGrid-Medicion-Inteligente/voltiagrid-docs/tree/develop/',
         },
         blog: false,
         theme: {
@@ -83,7 +83,7 @@ const config = {
           {
             title: 'Docs',
             items: [
-              {label: 'Introduction', to: '/docs/intro'},
+              {label: 'Introduction', to: '/'},
             ],
           },
           {
