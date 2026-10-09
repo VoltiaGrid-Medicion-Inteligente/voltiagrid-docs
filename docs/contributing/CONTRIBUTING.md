@@ -1,6 +1,4 @@
-# Contributing Guidelines — VoltaGrid Docs
-
-> Language: [🇺🇸 English](CONTRIBUTING.md) | [🇪🇸 Español](CONTRIBUTING.es.md)
+# Contributing Guidelines — VoltiaGrid Docs
 
 > **Note (P4):** this guide was adapted from `voltiagrid-api`. Generic workflow (branches, commits, PRs) is final.
 > There is no code here — only architecture, ADRs, costs and runbooks in Markdown/Mermaid.
