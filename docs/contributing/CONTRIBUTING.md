@@ -126,7 +126,7 @@ KAN-15 chore(config): add markdown link checker to ci
 
 - **Jira key first, UPPERCASE** (`KAN-12`, not `kan-12`).
 - **Description in English, imperative present tense:** "add" not "added"/"adds".
-- **Lowercase description, no trailing period**, concise (<72 chars if possible).
+- **Lowercase description, no trailing period**, concise (under 72 chars if possible).
 - One logical change per commit. Two unrelated fixes → two commits.
 - Small commits preferred. 20+ files in one commit → split it.
 

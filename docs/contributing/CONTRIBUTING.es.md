@@ -126,7 +126,7 @@ KAN-15 chore(config): add markdown link checker to ci
 
 - **Clave Jira primero, en MAYÚSCULAS** (`KAN-12`, no `kan-12`).
 - **Descripción en inglés, imperativa, presente:** "add" no "added"/"adds". (Traducción con WordReference si dudas: "agregar" → "add", "corregir" → "fix", "mover" → "move").
-- **Minúscula inicial, sin punto final**, concisa (<72 caracteres si es posible).
+- **Minúscula inicial, sin punto final**, concisa (menos de 72 caracteres si es posible).
 - Un cambio lógico por commit. Dos fixes no relacionados → dos commits.
 - Commits pequeños. 20+ archivos en un commit → divídelo.
 
