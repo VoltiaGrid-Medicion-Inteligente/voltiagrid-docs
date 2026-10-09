@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # ADR-006: ECS Fargate as main runtime, one component on EKS
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-09
 - **Owner:** P3
 

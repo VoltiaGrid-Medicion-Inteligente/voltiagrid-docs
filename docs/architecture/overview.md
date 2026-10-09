@@ -5,7 +5,7 @@ sidebar_position: 1
 
 # Logical architecture (v1)
 
-> **Status:** v1 draft for team review (T-09.4). Decisions marked *Proposed* in the [ADRs](../adr/index.md) are confirmed or changed in that review.
+> **Status:** v1 reviewed by the team on 2026-10-10 (T-09.4).
 
 VoltiaGrid receives smart-meter readings every 30 minutes, cleans and completes them, assigns every interval to a tariff band, detects non-technical losses per transformer and runs demand-response events. Results are served through APIs and a Power BI dashboard, and the whole platform runs on AWS.
 

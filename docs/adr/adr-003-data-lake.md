@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # ADR-003: S3 data lake with raw, clean and curated layers in Parquet
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-09
 - **Owner:** P2 / P3
 
