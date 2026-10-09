@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # ADR-002: Spark on ECS Fargate for batch processing
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-09
 - **Owner:** P2
 

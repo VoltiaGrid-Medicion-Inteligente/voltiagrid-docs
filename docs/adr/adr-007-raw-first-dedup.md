@@ -4,7 +4,7 @@ sidebar_position: 7
 
 # ADR-007: Store raw readings untouched; deduplicate in Spark
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-09
 - **Owner:** P1 / P2
 

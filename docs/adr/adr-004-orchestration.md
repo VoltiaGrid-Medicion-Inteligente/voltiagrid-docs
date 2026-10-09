@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # ADR-004: Airflow with CeleryExecutor for orchestration
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-09
 - **Owner:** P3
 

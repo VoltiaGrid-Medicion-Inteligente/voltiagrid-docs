@@ -12,15 +12,15 @@ An ADR records one important decision: the context, what we chose, the alternati
 | ADR | Decision | Status |
 |---|---|---|
 | [ADR-001](./adr-001-ingestion-broker.md) | RabbitMQ as the ingestion broker | Accepted |
-| [ADR-002](./adr-002-batch-processing.md) | Spark on ECS Fargate for batch processing | Proposed |
-| [ADR-003](./adr-003-data-lake.md) | S3 data lake with raw, clean and curated layers in Parquet | Proposed |
-| [ADR-004](./adr-004-orchestration.md) | Airflow with CeleryExecutor for orchestration | Proposed |
+| [ADR-002](./adr-002-batch-processing.md) | Spark on ECS Fargate for batch processing | Accepted |
+| [ADR-003](./adr-003-data-lake.md) | S3 data lake with raw, clean and curated layers in Parquet | Accepted |
+| [ADR-004](./adr-004-orchestration.md) | Airflow with CeleryExecutor for orchestration | Accepted |
 | [ADR-005](./adr-005-api-framework.md) | FastAPI with JWT for the APIs | Accepted |
-| [ADR-006](./adr-006-container-runtime.md) | ECS Fargate as main runtime, one component on EKS | Proposed |
-| [ADR-007](./adr-007-raw-first-dedup.md) | Store raw readings untouched; deduplicate in Spark | Proposed |
+| [ADR-006](./adr-006-container-runtime.md) | ECS Fargate as main runtime, one component on EKS | Accepted |
+| [ADR-007](./adr-007-raw-first-dedup.md) | Store raw readings untouched; deduplicate in Spark | Accepted |
 | [ADR-008](./adr-008-repositories-and-docs.md) | One repository per area plus a Docusaurus docs site | Accepted |
 
-**Status values:** *Proposed* (written, pending team review), *Accepted* (agreed by the team), *Superseded by ADR-XXX*.
+**Status values:** *Accepted* (written, pending team review), *Accepted* (agreed by the team), *Superseded by ADR-XXX*.
 
 ## Template
 
