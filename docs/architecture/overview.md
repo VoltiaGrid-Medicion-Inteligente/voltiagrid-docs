@@ -72,7 +72,7 @@ flowchart LR
     RMQ --> CON
   end
 
-  RAW[("4. S3 raw<br/>as received")]
+  RAW[("4. S3 lake · raw layer<br/>as received")]
 
   subgraph PRO["3. Processing"]
     direction TB
@@ -83,7 +83,7 @@ flowchart LR
 
   subgraph STO["4. Storage"]
     direction TB
-    CUR[("S3 clean + curated<br/>Parquet")]
+    CUR[("S3 lake · clean + curated layers<br/>Parquet")]
     RDS[("RDS PostgreSQL<br/>inventory + aggregates")]
   end
 
