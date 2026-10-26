@@ -21,6 +21,8 @@ An ADR records one important decision: the context, what we chose, the alternati
 | [ADR-008](./adr-008-repositories-and-docs.md) | One repository per area plus a Docusaurus docs site | Accepted |
 | [ADR-009](./adr-009-aws-identity.md) | IAM Identity Center for team access to AWS | Accepted |
 | [ADR-010](./adr-010-api-authentication.md) | JWT authentication and role-based access for the APIs | Accepted |
+| [ADR-011](./adr-011-region-and-network.md) | us-east-1, two availability zones and a network without NAT Gateway | Accepted |
+| [ADR-012](./adr-012-terraform.md) | Terraform in `voltiagrid-api/infra`, state in S3, two stacks | Accepted |
 
 **Status values:** *Proposed* (written, pending team review), *Accepted* (agreed by the team), *Superseded by ADR-XXX*.
 
