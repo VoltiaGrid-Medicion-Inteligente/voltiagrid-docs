@@ -23,6 +23,7 @@ An ADR records one important decision: the context, what we chose, the alternati
 | [ADR-010](./adr-010-api-authentication.md) | JWT authentication and role-based access for the APIs | Accepted |
 | [ADR-011](./adr-011-region-and-network.md) | us-east-1, two availability zones and a network without NAT Gateway | Accepted |
 | [ADR-012](./adr-012-terraform.md) | Terraform in `voltiagrid-api/infra`, state in S3, two stacks | Accepted |
+| [ADR-013](./adr-013-admin-instance.md) | One small EC2 instance as the admin door to the private network | Accepted |
 
 **Status values:** *Proposed* (written, pending team review), *Accepted* (agreed by the team), *Superseded by ADR-XXX*.
 
