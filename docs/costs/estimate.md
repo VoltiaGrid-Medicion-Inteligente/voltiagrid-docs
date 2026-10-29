@@ -8,7 +8,7 @@ sidebar_position: 2
 Built in the **AWS Pricing Calculator** with the assumptions of *Services and usage assumptions* (codes D1–D12 and P1–P15; the one-off costs O1 and O2 are listed there).
 Prices: `us-east-1`, on-demand, USD, October 2026, before credits.
 
-- **Calculator estimate (public link):** https://calculator.aws/#/estimate
+- **Calculator estimate (public link):** not saved; the exported CSV attached to the pull request of T-24.2 has every line of the estimate.
 - **Exported file:** `estimate-2026-10.csv` attached to the pull request of T-24.2
 
 ## Summary
