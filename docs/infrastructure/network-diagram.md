@@ -22,7 +22,7 @@ flowchart LR
           TASKSA["Fargate tasks<br/>public IP · SG app"]
         end
         subgraph PRIVA["private-a · 10.20.10.0/24"]
-          RDS[("RDS PostgreSQL 16<br/>voltiagrid-dev-db")]
+          RDS[("RDS PostgreSQL 16<br/>voltiagrid-dev-db<br/>Single-AZ: private-a or private-b")]
           EC2["Admin instance<br/>t4g.nano · no public IP"]
           SSMEP["SSM interface endpoints"]
         end
@@ -33,7 +33,7 @@ flowchart LR
           TASKSB["Fargate tasks<br/>public IP · SG app"]
         end
         subgraph PRIVB["private-b · 10.20.11.0/24"]
-          RDSB["DB subnet group<br/>standby subnet, no instance"]
+          RDSB["DB subnet group<br/>second subnet: RDS may run here"]
         end
       end
       S3EP["S3 gateway endpoint"]
@@ -66,10 +66,12 @@ flowchart LR
 |---|---|---|---|---|---|
 | `voltiagrid-dev-public-a` | us-east-1a | 10.20.0.0/24 | `voltiagrid-dev-public` | local, `0.0.0.0/0` → IGW, S3 prefix list → S3 endpoint | ALB node, Fargate tasks |
 | `voltiagrid-dev-public-b` | us-east-1b | 10.20.1.0/24 | `voltiagrid-dev-public` | same | ALB node, Fargate tasks |
-| `voltiagrid-dev-private-a` | us-east-1a | 10.20.10.0/24 | `voltiagrid-dev-private` | local, S3 prefix list → S3 endpoint | RDS, admin instance, SSM endpoints |
-| `voltiagrid-dev-private-b` | us-east-1b | 10.20.11.0/24 | `voltiagrid-dev-private` | same | DB subnet group (second AZ) |
+| `voltiagrid-dev-private-a` | us-east-1a | 10.20.10.0/24 | `voltiagrid-dev-private` | local, S3 prefix list → S3 endpoint | Admin instance, SSM endpoints, RDS (if AWS placed it here) |
+| `voltiagrid-dev-private-b` | us-east-1b | 10.20.11.0/24 | `voltiagrid-dev-private` | same | DB subnet group, RDS (if AWS placed it here) |
 
 There is **no NAT Gateway** and the private route table has **no route to the internet** (ADR-011).
+
+RDS is Single-AZ and the code does not pin an AZ: AWS places it in private-a or private-b when it is created (`us-east-1b` in the T-26.3 review).
 
 ## Security Groups: who can talk to whom
 
@@ -81,7 +83,7 @@ There is **no NAT Gateway** and the private route table has **no route to the in
 | admin | — | — | **5432** | **443** |
 
 - `admin` accepts nothing inbound. `rds`, `app` and `endpoints` accept traffic only from other Security Groups, never from an IP range.
-- Egress is also explicit: `app` may go out on 443 (AWS APIs), 80 (the ALB) and 5432 (RDS); `admin` on 443 to the endpoints and S3, and 5432 to RDS.
+- Egress is also explicit: `alb` may go out only to `app` on 8001, 8002, 8003 and 8005; `app` on 443 (AWS APIs), 80 (the ALB) and 5432 (RDS); `admin` on 443 to the endpoints and S3, and 5432 to RDS.
 - The default Security Group of the VPC has no rules.
 
 ## Traffic flows
