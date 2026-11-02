@@ -57,7 +57,7 @@ terraform -chdir=infra/envs/dev state list |
 | | `aws_subnet` | 4 | `voltiagrid-dev-{public,private}-{a,b}` | Public and private in 2 AZs (ADR-011) |
 | | `aws_internet_gateway` | 1 | `voltiagrid-dev-igw` | Internet for the ALB and the tasks |
 | | `aws_route_table` | 2 | `voltiagrid-dev-{public,private}` | Private table without internet route |
-| | `aws_route` | 1 | public `0.0.0.0/0` → IGW | — |
+| | `aws_route` | 1 | public `0.0.0.0/0` → IGW | Internet for the public subnets (ALB and tasks) |
 | | `aws_route_table_association` | 4 | — | One per subnet |
 | | `aws_default_security_group` | 1 | `voltiagrid-dev-default-closed` | Default group left without rules |
 | | `aws_vpc_endpoint` | 4 | `voltiagrid-dev-s3` (gateway), `-ssm`, `-ssmmessages`, `-ec2messages` (interface) | S3 without NAT (T-21.3); Session Manager without NAT (US-22) |
