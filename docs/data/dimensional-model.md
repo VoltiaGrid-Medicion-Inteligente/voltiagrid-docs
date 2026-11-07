@@ -95,7 +95,7 @@ model before merging; differences are listed.
 
 | Fact | Dataset and job | Keys | Review |
 |---|---|---|---|
-| `fact_consumption` | `curated/dataset=fact_consumption_interval/date=…`, `jobs.fact_consumption_interval` (US-48) | `date_key`, `time_key`, `meter_id`, `customer_code`, `transformer_code`, `band_name` | Grain and measures as designed. Named `_interval` because `curated/dataset=fact_consumption` already holds the monthly billing aggregate of US-35. Adds `tariff_valid_from` (which F7 period priced the row) and `interval_start`. Built from the filled readings, so estimated intervals are in the fact with `is_estimated = 1`. No orphan keys: the job stops if a meter is not in F4 or an interval has no F7 band. |
+| `fact_consumption` | `curated/dataset=fact_consumption_interval/date=…`, `jobs.fact_consumption_interval` (US-48) | `date_key`, `time_key`, `meter_id`, `customer_code`, `transformer_code`, `band_name` | Grain and measures as designed. Named `_interval` because `curated/dataset=fact_consumption` already holds the monthly billing aggregate of US-35. Adds `tariff_valid_from` (which F7 period priced the row) and `interval_start`. Built from the filled readings, so estimated intervals are in the fact with `is_estimated = 1`. No orphan keys: readings of a meter that is not in F4 are left out of the fact and counted in the job's output, and the job stops if an interval has no F7 band. |
 
 ## Dimensions
 
