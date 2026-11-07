@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # ADR-004: Airflow with CeleryExecutor for orchestration
 
-- **Status:** Accepted
+- **Status:** Accepted, amended by [ADR-014](./adr-014-runtime-adjustments.md)
 - **Date:** 2026-10-09
 - **Owner:** P3
 
@@ -24,3 +24,6 @@ Use **Apache Airflow** with **CeleryExecutor**, using RabbitMQ as the Celery bro
 - One place to see every process, its retries and its duration.
 - The team operates Airflow (scheduler, webserver, workers) itself.
 - DAG validation is added to the data CI pipeline.
+
+## Amendment ([ADR-014](./adr-014-runtime-adjustments.md))
+Airflow (scheduler, webserver and Celery worker) runs with RabbitMQ on **one EC2 `t3.large` instance**, not on Fargate. Its metadata database stays in RDS.

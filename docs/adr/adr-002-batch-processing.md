@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # ADR-002: Spark on ECS Fargate for batch processing
 
-- **Status:** Accepted
+- **Status:** Accepted, amended by [ADR-014](./adr-014-runtime-adjustments.md)
 - **Date:** 2026-10-09
 - **Owner:** P2
 
@@ -24,3 +24,6 @@ Run **PySpark jobs as ECS Fargate tasks** (one task per run, image in ECR), trig
 - The same container image runs locally and in AWS.
 - We pay only while the task runs.
 - A single Fargate task has CPU and memory limits; if the projected volume does not fit, the job is split by partition or this ADR is revisited in favor of EMR.
+
+## Amendment ([ADR-014](./adr-014-runtime-adjustments.md))
+Scheduled jobs (30-minute batches and the daily close) run on Fargate **on-demand**; Fargate Spot is used only for the one-off historical load (US-41).
