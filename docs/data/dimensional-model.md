@@ -11,7 +11,7 @@ sidebar_position: 1
 
 - **Star schema:** five fact tables that share the same dimensions (conformed dimensions), so every visual can be filtered by date, customer, meter or transformer.
 - **Grain first:** every fact table declares what one row means before listing measures.
-- **Surrogate keys** (`*_key`) in every dimension; the natural keys from F4 (`code`, `lclid`) are kept as attributes.
+- **Deterministic keys** (decided in the US-48 review): `date_key` is the date as `yyyymmdd`, `time_key` the 30-minute slot (0–47), and meter, customer, transformer, circuit and band keep their F4 and F7 codes (`MAC000002`, `CU-MAC000002`, `TR-00001`, `peak`). A fact never needs a lookup to get its keys, a rerun gives the same keys, and the dimensions of US-52 use the same values. The type 2 dimensions add `valid_from` to tell versions apart.
 - **History where it matters:** `dim_customer` and `dim_tariff_band` keep versions by effective date (slowly changing dimension type 2), because RN-05 needs the tariff valid on each date and RN-07 needs to know whether the contract changed.
 - **Source of truth:** dimensions come from F4 (inventory), F7 (tariff calendar) and F2/F6 (weather); facts come from the clean readings and the results of the business rules.
 
@@ -82,11 +82,20 @@ erDiagram
 
 | Fact table | Grain (one row is…) | Measures | Built from | Rules |
 |---|---|---|---|---|
-| `fact_consumption` | one **meter** in one **30-minute interval** | `energy_kwh`, `energy_cost` (kWh × band price), `is_estimated` (0/1), `estimation_method` (none, interpolation, profile) | Clean readings (S3 clean) + F7 | RN-01, RN-02, RN-03, RN-05 |
+| `fact_consumption` | one **meter** in one **30-minute interval** | `energy_kwh`, `energy_cost` (kWh × band price), `is_estimated` (0/1), `estimation_method` (none, interpolation, profile) | Filled readings (clean + estimated, US-34) + F4 + F7 | RN-01, RN-02, RN-03, RN-05 |
 | `fact_transformer_loss_daily` | one **transformer** on one **day** | `delivered_kwh`, `metered_kwh`, `loss_kwh`, `loss_pct`, `loss_cost`, `consecutive_days_over_12`, `is_suspicious` (0/1) | F5 + sum of `fact_consumption` | RN-06, RN-07 |
 | `fact_load_weather_hourly` | one **transformer** in one **hour** | `delivered_kwh`, `peak_kw`, `load_pct_capacity`, `temperature_c` | F5 + F2/F6 | RN-08 input |
 | `fact_dr_participation` | one **customer** in one **demand-response event** | `baseline_kwh`, `actual_kwh`, `savings_kwh`, `savings_pct`, `incentive_paid` (0/1), `incentive_amount` | Events + `fact_consumption` | RN-08, RN-09, RN-10 |
 | `fact_billing_monthly` | one **customer** (meter) in one **month** | `total_kwh`, `total_readings`, `estimated_readings`, `estimated_pct`, `is_billable` (0/1), `inspection_order` (0/1) | Aggregate of `fact_consumption` | RN-04 |
+
+## Built in the curated layer
+
+What each fact looks like once its Spark job exists (voltiagrid-data, `docs/data/analytics.md`). Reviewed against this
+model before merging; differences are listed.
+
+| Fact | Dataset and job | Keys | Review |
+|---|---|---|---|
+| `fact_consumption` | `curated/dataset=fact_consumption_interval/date=…`, `jobs.fact_consumption_interval` (US-48) | `date_key`, `time_key`, `meter_id`, `customer_code`, `transformer_code`, `band_name` | Grain and measures as designed. Named `_interval` because `curated/dataset=fact_consumption` already holds the monthly billing aggregate of US-35. Adds `tariff_valid_from` (which F7 period priced the row) and `interval_start`. Built from the filled readings, so estimated intervals are in the fact with `is_estimated = 1`. No orphan keys: the job stops if a meter is not in F4 or an interval has no F7 band. |
 
 ## Dimensions
 
