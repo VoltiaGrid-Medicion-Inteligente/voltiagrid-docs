@@ -5,7 +5,7 @@ sidebar_position: 1
 
 # Logical architecture (v1)
 
-> **Status:** v1 reviewed by the team on 2026-10-10 (T-09.4).
+> **Status:** v1 reviewed by the team on 2026-10-10 (T-09.4). Runtime updated on 2026-10-23 with [ADR-014](../adr/adr-014-runtime-adjustments.md).
 
 VoltiaGrid receives smart-meter readings every 30 minutes, cleans and completes them, assigns every interval to a tariff band, detects non-technical losses per transformer and runs demand-response events. Results are served through APIs and a Power BI dashboard, and the whole platform runs on AWS.
 
@@ -43,10 +43,10 @@ The architecture is sized for the pilot and must scale to the projected volume w
 
 | Cost indicator | Pilot | Target |
 |---|---|---|
-| Estimated monthly AWS cost (USD) | $297 | $762 |
-| Cost per meter per month (USD) | $0.054 | $0.0038 |
+| Estimated monthly AWS cost (USD) | $219 | $581 (preliminary) |
+| Cost per meter per month (USD) | $0.040 | $0.0029 |
 
-36 times more meters for about 2.6 times the cost; cost per meter drops by about 93%. Identified optimizations could bring the pilot to about $220 a month. These are **preliminary figures** based on AWS us-east-1 list prices and must be validated with the AWS Pricing Calculator (see Costs).
+36 times more meters for about 2.7 times the cost; cost per meter drops by about 93%, because the bill is driven by services that are always on, not by data volume. The pilot figure is the line-by-line estimate in [Costs → Monthly estimate](../costs/estimate.md). The target figure is the projection shown in the architecture presentation: RabbitMQ on a dedicated three-node cluster, RDS Multi-AZ on a larger instance, more API and consumer tasks, NAT Gateways in both zones and a daily close twice as large. It is recalculated in US-58.
 
 ## Logical diagram
 
@@ -66,7 +66,7 @@ flowchart LR
 
   subgraph ING["2. Ingestion"]
     direction TB
-    RMQ["RabbitMQ<br/>durable queues + DLQ"]
+    RMQ["RabbitMQ on EC2<br/>durable queues + DLQ"]
     CON["Consumers<br/>manual ACK"]
     PULL["Pull jobs"]
     RMQ --> CON
@@ -76,7 +76,7 @@ flowchart LR
 
   subgraph PRO["3. Processing"]
     direction TB
-    AF["Airflow<br/>CeleryExecutor"]
+    AF["Airflow on EC2<br/>CeleryExecutor"]
     SPK["Spark on ECS Fargate<br/>clean · dedup · estimate<br/>bands · losses · events"]
     AF -.->|schedules| SPK
   end
@@ -117,12 +117,12 @@ flowchart LR
 | # | Layer | What it does | v1 technology | Repository |
 |---|---|---|---|---|
 | 1 | **Sources** | Produce the data. F1, F2 and F6 are real; F3, F4, F5 and F7 are simulated by a reproducible seed. | CSV (Kaggle), Open-Meteo, Python simulators | `voltiagrid-api` |
-| 2 | **Ingestion** | Receive readings without losing any, and bring the other sources into the lake. | RabbitMQ (persistent messages, manual ACK, DLQ), consumers, pull jobs | `voltiagrid-api` |
-| 3 | **Processing** | Clean, deduplicate, estimate gaps, assign tariff bands, compute losses and settle demand-response events. | Spark on ECS Fargate, orchestrated by Airflow | `voltiagrid-data` |
+| 2 | **Ingestion** | Receive readings without losing any, and bring the other sources into the lake. | RabbitMQ on one EC2 instance shared with Airflow (persistent messages, manual ACK, DLQ), consumers on ECS Fargate, pull jobs | `voltiagrid-api` |
+| 3 | **Processing** | Clean, deduplicate, estimate gaps, assign tariff bands, compute losses and settle demand-response events. | Spark on ECS Fargate (on-demand; Spot only for the historical load), orchestrated by Airflow | `voltiagrid-data` |
 | 4 | **Storage** | Keep every reading for 3 years at the lowest cost, plus the operational data the APIs need. | S3 (raw, clean, curated) in Parquet; RDS PostgreSQL | `voltiagrid-data`, `voltiagrid-api` |
 | 5 | **APIs** | Serve daily consumption to the authenticated customer and transformer load to the control center. | FastAPI, JWT, behind an ALB | `voltiagrid-api` |
 | 6 | **Analytics** | Answer the six business questions with numbers that reconcile with a control query. | Dimensional model, Power BI | `voltiagrid-analytics` |
-| 7 | **Operations** | Build, deploy, secure and observe everything. | GitHub Actions, ECR, ECS/EKS, IAM, CloudWatch | all |
+| 7 | **Operations** | Build, deploy, secure and observe everything. | Terraform, GitHub Actions, ECR, ECS, EKS (F5 simulator only), IAM, CloudWatch | all |
 
 ## Design principles
 

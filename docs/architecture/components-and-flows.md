@@ -13,16 +13,16 @@ This page lists every component of v1, how they talk to each other (synchronous 
 |---|---|---|---|---|
 | Seed | Populates the F4 inventory and generates simulated data with a fixed seed and a configurable defect rate | Container (on demand) | RDS | P1 |
 | Concentrator simulator (F3) | Publishes one JSON message per concentrator every 30 min; can simulate an outage and a bulk resend | ECS Fargate | RabbitMQ | P1 |
-| Transformer metering API (F5) | Returns energy delivered per transformer every 15 min; can inject losses | ECS Fargate behind ALB | RDS | P1 |
-| RabbitMQ | Buffers readings between producers and consumers; also the Celery broker for Airflow | Container (Amazon MQ in AWS, *proposed*) | Simulator, consumers, Airflow | P1 / P3 |
+| Transformer metering API (F5) | Returns energy delivered per transformer every 15 min; can inject losses | ECS Fargate behind ALB; EKS in weeks 5 and 6 for the comparison ([ADR-014](../adr/adr-014-runtime-adjustments.md)) | RDS | P1 |
+| RabbitMQ | Buffers readings between producers and consumers; also the Celery broker for Airflow | Container on one EC2 `t3.large` shared with Airflow, queues on EBS ([ADR-014](../adr/adr-014-runtime-adjustments.md)) | Simulator, consumers, Airflow | P1 / P3 |
 | Reading consumers | Store every message as received in S3 raw, then ACK | ECS Fargate | RabbitMQ, S3 | P1 |
 | Pull jobs | Fetch F5, F6 and F7 into S3 raw on schedule | Airflow tasks | F5, Open-Meteo, S3 | P2 |
-| Spark jobs | Clean, dedup, estimate, tariff bands, losses, demand-response events | ECS Fargate (one task per run) | S3, RDS | P2 |
-| Airflow | Schedules and retries every batch process (DAGs) | ECS (scheduler, webserver, Celery workers) | Spark tasks, pull jobs, RabbitMQ | P3 |
+| Spark jobs | Clean, dedup, estimate, tariff bands, losses, demand-response events | ECS Fargate on-demand, one task per run; Fargate Spot only for the historical load | S3, RDS | P2 |
+| Airflow | Schedules and retries every batch process (DAGs) | Same EC2 instance as RabbitMQ (scheduler, webserver, Celery worker); metadata in RDS | Spark tasks, pull jobs, RabbitMQ | P3 |
 | RDS PostgreSQL | F4 inventory and the aggregated results the APIs serve | RDS | Seed, Spark, APIs | P1 / P3 |
 | S3 data lake | raw, clean and curated layers in Parquet, with lifecycle rules for 3-year retention | S3 | Consumers, Spark, Power BI | P2 / P3 |
 | Customer consumption API | Daily consumption per band for the authenticated customer (p95 of 500 ms or less) | ECS Fargate behind ALB | RDS | P1 |
-| Control center API | Aggregated load per transformer | ECS Fargate behind ALB (or EKS, see [ADR-006](../adr/adr-006-container-runtime.md)) | RDS | P1 |
+| Control center API | Aggregated load per transformer | ECS Fargate behind ALB | RDS | P1 |
 | Dimensional model and Power BI | Answers the six business questions | Power BI Desktop / Service | S3 curated | P4 |
 | CI/CD | Lint, tests, secret scanning, image build and deploy | GitHub Actions | GitHub, ECR, ECS | P3 |
 | Observability | Logs, metrics (queue depth, daily close duration) and at least one alarm | CloudWatch | Every component | P3 |
@@ -163,5 +163,5 @@ flowchart LR
 | Where are duplicates and bad clocks fixed? | In Spark, not at ingestion, so raw data stays intact and periods can be reprocessed. |
 | How does the API stay under 500 ms (p95)? | It reads pre-aggregated daily data from RDS, never raw readings. |
 | How do we keep 3 years of readings cheaply? | S3 in Parquet with lifecycle rules to cheaper storage classes for older partitions. |
-| What changes to reach 200,000 meters? | More consumer tasks, larger Spark tasks and more partitions; RabbitMQ is reviewed against Kafka at that volume (see [ADR-001](../adr/adr-001-ingestion-broker.md)). |
+| What changes to reach 200,000 meters? | More consumer tasks, larger Spark tasks and more partitions; RabbitMQ moves from the shared EC2 instance to a dedicated three-node cluster and is reviewed against Kafka at that volume (see [ADR-001](../adr/adr-001-ingestion-broker.md)). |
 | How is a reprocess made safe? | Every job overwrites its own date partition and upserts by natural key. |

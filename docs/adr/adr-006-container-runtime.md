@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # ADR-006: ECS Fargate as main runtime, one component on EKS
 
-- **Status:** Accepted
+- **Status:** Accepted, amended by [ADR-014](./adr-014-runtime-adjustments.md)
 - **Date:** 2026-10-09
 - **Owner:** P3
 
@@ -24,3 +24,6 @@ Run the APIs, simulators, consumers and Spark tasks on **ECS Fargate**. Deploy *
 - Low operational effort for most components; pay per task.
 - The EKS component gives real evidence for the ECS vs EKS comparison.
 - Two deployment paths in CI/CD (ECS and EKS) must be maintained.
+
+## Amendment ([ADR-014](./adr-014-runtime-adjustments.md))
+The EKS component is the **F5 transformer metering simulator**, not the control center API. It runs on EKS in weeks 5 and 6, with the cluster created only during test windows. Airflow and RabbitMQ run on one EC2 instance instead of ECS.
