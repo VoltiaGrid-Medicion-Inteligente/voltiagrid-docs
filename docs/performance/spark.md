@@ -45,13 +45,25 @@ Reference measurement of the change (synthetic lake: 1,000 meters, 35 days, 1.65
 Shuffle did not change: the gain is reading less, not moving less. One day of that lake (the size of a daily
 close, 47,000 readings) took 33.2 s before and 31.6 s after: at that size most of the time is starting Spark.
 
-**Measurement on the pilot lake** (the team's laptop, `python -m jobs.benchmark --compare …`):
+**Measurement on the pilot lake** (the team's laptop, `python -m jobs.benchmark --compare …`; before and after
+measured back to back under the same conditions):
 
 | Job | Seconds before → after | Shuffle (MB) before → after |
 |---|---|---|
-| `<fill: paste the --compare table of your before.json and after.json>` | | |
+| `clean_readings` | 23.0 → 21.9 | 2.4 → 2.4 |
+| `estimate_gaps` | 5.4 → 5.4 | 0.4 → 0.4 |
+| `circuit_load` | 4.3 → 4.2 | 0.2 → 0.2 |
+| `fact_consumption` | 3.7 → 3.6 | 0.1 → 0.1 |
+| `billing` | 3.2 → 3.3 | 0.0 → 0.0 |
+| `transformer_losses` | 4.8 → 5.0 | 0.5 → 0.5 |
+| `suspicious_meters` | 3.6 → 4.4 | 0.0 → 0.0 |
+| **Total** | **48.0 → 47.8 (−0%)** | |
 
-Machine: `<fill: CPU, cores, RAM>`. Run: `<fill: run name, dates and readings>`.
+Machine: 16 cores, 15 GB RAM, Windows. Run: `f3-2026-11-04` (3 dates, 9,430 readings), shuffle partitions 8.
+
+At this size the difference is within noise: the same code took 36.6 s and 48.0 s on two measurements of the same
+laptop, about 30% apart. Like the one-day measurement of the reference lake, most of the time is starting Spark; the
+gain of reading the raw once shows with volume, and the historical F1 load on Fargate (US-41) is where it is measured.
 
 ## Execution plans
 
