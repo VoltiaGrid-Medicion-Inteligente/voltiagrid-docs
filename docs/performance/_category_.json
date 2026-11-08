@@ -1,0 +1,8 @@
+{
+  "label": "Performance",
+  "position": 7,
+  "link": {
+    "type": "generated-index",
+    "description": "How fast the pipeline and the APIs are, how it was measured and what was changed (US-42, US-47)."
+  }
+}
