@@ -48,12 +48,12 @@ Reference measurement (local stack, 2 cores, dev seed of 200 customers, month 20
 
 p95 went from 470 ms to 21 ms (−96%) and the API served 15% more requests in the same time.
 
-*Measurement of the team* (Carlos Aponte's laptop, local stack, 100 users for 2 minutes; KAN-295 and KAN-296):
+**Measurement of the team** (Carlos Aponte's laptop, local stack, 100 users for 2 minutes; KAN-295 and KAN-296):
 
 | | Requests | Failures | Median | p95 | p99 | RNF-04 |
 |---|---|---|---|---|---|---|
 | Before (computed on each request) | 4,030 | 0 | 1,600 ms | 2,800 ms | 4,000 ms | misses |
-| After (consumption_daily) | | | 74 ms | 730 ms | 2,200 ms | misses (730 > 500 ms) |
+| After (`consumption_daily`) | | | 74 ms | 730 ms | 2,200 ms | misses (730 > 500 ms) |
 
 p95 went from 2,800 ms to 730 ms (−74%), still above the 500 ms of RNF-04 on this laptop. The reference run meets
 it (21 ms); the gap is the laptop under load (the API, Postgres and Locust on the same machine). The next steps are
