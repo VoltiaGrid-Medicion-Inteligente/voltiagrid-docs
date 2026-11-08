@@ -22,6 +22,3 @@ The sum of `incentive_amount` per event must match the settlement of the event (
 
 ## Screenshot
 The screenshot is attached to the PR by dragging it into the description; it is not committed as a file.
-
-## Where the .pbix is
-The Power BI file is shared in the team folder. This page documents what the report answers, not the file itself.
