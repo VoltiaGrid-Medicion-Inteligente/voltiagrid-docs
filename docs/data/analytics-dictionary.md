@@ -12,32 +12,32 @@ from the lake; datasets marked *schema from the job* had no rows in the lake use
 
 | Dataset | Layer | Partition | Grain | Written by | Story |
 |---|---|---|---|---|---|
-| [`interval_30min`](#interval-30min) | `clean/source=readings` | `date` | one reading per meter and 30-minute interval, plus the readings with an invalid clock | `jobs.clean_readings` | US-30 |
-| [`interval_30min_filled`](#interval-30min-filled) | `clean/source=readings` | `date` | exactly 48 rows per meter and day: the real reading or an estimate | `jobs.estimate_gaps` | US-34, RN-03 |
-| [`circuit_load`](#circuit-load) | `curated` | `date` | one circuit in one 30-minute interval | `jobs.circuit_load` | US-33 |
-| [`transformer_losses`](#transformer-losses) | `curated` | `date` | one transformer on one day | `jobs.transformer_losses` | US-37, RN-06 |
-| [`suspicious_transformers`](#suspicious-transformers) | `curated` | `date` | one suspicious transformer on one day | `jobs.transformer_losses` | US-37, RN-06 |
-| [`suspicious_meters`](#suspicious-meters) | `curated` | `date` | one meter of a suspicious transformer, evaluated on one day | `jobs.suspicious_meters` | US-38, RN-07 |
-| [`fact_consumption`](#fact-consumption) | `curated` | `month` | one customer, month, tariff band and tariff period | `jobs.fact_consumption` | US-35 |
-| [`fact_consumption_interval`](#fact-consumption-interval) | `curated` | `date` | one meter in one 30-minute interval | `jobs.fact_consumption_interval` | US-48 |
-| [`billing_status`](#billing-status) | `curated` | `month` | one customer in one month | `jobs.billing` | US-36, RN-04 |
-| [`inspection_orders`](#inspection-orders) | `curated` | `month` | one customer that cannot be billed automatically, in one month | `jobs.billing` | US-36, RN-04 |
-| [`fact_transformer_loss_daily`](#fact-transformer-loss-daily) | `curated` | `date` | one transformer on one day, valued in money | `jobs.fact_transformer_loss` | US-51, RN-06 |
-| [`fact_load_weather_hourly`](#fact-load-weather-hourly) | `curated` | `date` | one transformer in one hour | `jobs.fact_load_weather (PR data #78)` | US-53 (question 5) |
-| [`quarterly_report_transformers`](#quarterly-report-transformers) | `curated` | `quarter` | one transformer in one quarter | `jobs.quarterly_report` | US-54 |
-| [`dr_events`](#dr-events) | `curated` | `date` | one demand-response event | `jobs.dr_events` | US-43, RN-08 |
-| [`dr_participants`](#dr-participants) | `curated` | `date` | one customer meter taking part in one event | `jobs.dr_events` | US-43, RN-10 |
-| [`dr_notifications`](#dr-notifications) | `curated` | `date` | one notification of one event to one customer | `jobs.dr_events` | US-43 |
-| [`dr_settlement`](#dr-settlement) | `curated` | `date` | one customer in one event, with baseline, saving and incentive | `jobs.dr_settlement` | US-44, RN-09 |
-| [`fact_dr_participation`](#fact-dr-participation) | `curated` | `date` | one customer in one demand-response event | `jobs.fact_dr_participation` | US-45 |
-| [`dim_date`](#dim-date) | `curated` | `-` | one day | `jobs.dimensions` | US-52 |
-| [`dim_month`](#dim-month) | `curated` | `-` | one calendar month | `jobs.dimensions` | US-52 |
-| [`dim_time_of_day`](#dim-time-of-day) | `curated` | `-` | one of the 48 half hours of a day | `jobs.dimensions` | US-52 |
-| [`dim_tariff_band`](#dim-tariff-band) | `curated` | `-` | one version of one F7 tariff band | `jobs.dimensions` | US-52 |
-| [`dim_customer`](#dim-customer) | `curated` | `-` | one contract version of one customer (type 2) | `jobs.dimensions` | US-52 |
-| [`dim_meter`](#dim-meter) | `curated` | `-` | one meter | `jobs.dimensions` | US-52 |
-| [`dim_transformer`](#dim-transformer) | `curated` | `-` | one transformer with its circuit | `jobs.dimensions` | US-52 |
-| [`dim_dr_event`](#dim-dr-event) | `curated` | `-` | one demand-response event | `jobs.dimensions` | US-52 |
+| [`interval_30min`](#interval_30min) | `clean/source=readings` | `date` | one reading per meter and 30-minute interval, plus the readings with an invalid clock | `jobs.clean_readings` | US-30 |
+| [`interval_30min_filled`](#interval_30min_filled) | `clean/source=readings` | `date` | exactly 48 rows per meter and day: the real reading or an estimate | `jobs.estimate_gaps` | US-34, RN-03 |
+| [`circuit_load`](#circuit_load) | `curated` | `date` | one circuit in one 30-minute interval | `jobs.circuit_load` | US-33 |
+| [`transformer_losses`](#transformer_losses) | `curated` | `date` | one transformer on one day | `jobs.transformer_losses` | US-37, RN-06 |
+| [`suspicious_transformers`](#suspicious_transformers) | `curated` | `date` | one suspicious transformer on one day | `jobs.transformer_losses` | US-37, RN-06 |
+| [`suspicious_meters`](#suspicious_meters) | `curated` | `date` | one meter of a suspicious transformer, evaluated on one day | `jobs.suspicious_meters` | US-38, RN-07 |
+| [`fact_consumption`](#fact_consumption) | `curated` | `month` | one customer, month, tariff band and tariff period | `jobs.fact_consumption` | US-35 |
+| [`fact_consumption_interval`](#fact_consumption_interval) | `curated` | `date` | one meter in one 30-minute interval | `jobs.fact_consumption_interval` | US-48 |
+| [`billing_status`](#billing_status) | `curated` | `month` | one customer in one month | `jobs.billing` | US-36, RN-04 |
+| [`inspection_orders`](#inspection_orders) | `curated` | `month` | one customer that cannot be billed automatically, in one month | `jobs.billing` | US-36, RN-04 |
+| [`fact_transformer_loss_daily`](#fact_transformer_loss_daily) | `curated` | `date` | one transformer on one day, valued in money | `jobs.fact_transformer_loss` | US-51, RN-06 |
+| [`fact_load_weather_hourly`](#fact_load_weather_hourly) | `curated` | `date` | one transformer in one hour | `jobs.fact_load_weather (PR data #78)` | US-53 (question 5) |
+| [`quarterly_report_transformers`](#quarterly_report_transformers) | `curated` | `quarter` | one transformer in one quarter | `jobs.quarterly_report` | US-54 |
+| [`dr_events`](#dr_events) | `curated` | `date` | one demand-response event | `jobs.dr_events` | US-43, RN-08 |
+| [`dr_participants`](#dr_participants) | `curated` | `date` | one customer meter taking part in one event | `jobs.dr_events` | US-43, RN-10 |
+| [`dr_notifications`](#dr_notifications) | `curated` | `date` | one notification of one event to one customer | `jobs.dr_events` | US-43 |
+| [`dr_settlement`](#dr_settlement) | `curated` | `date` | one customer in one event, with baseline, saving and incentive | `jobs.dr_settlement` | US-44, RN-09 |
+| [`fact_dr_participation`](#fact_dr_participation) | `curated` | `date` | one customer in one demand-response event | `jobs.fact_dr_participation` | US-45 |
+| [`dim_date`](#dim_date) | `curated` | `-` | one day | `jobs.dimensions` | US-52 |
+| [`dim_month`](#dim_month) | `curated` | `-` | one calendar month | `jobs.dimensions` | US-52 |
+| [`dim_time_of_day`](#dim_time_of_day) | `curated` | `-` | one of the 48 half hours of a day | `jobs.dimensions` | US-52 |
+| [`dim_tariff_band`](#dim_tariff_band) | `curated` | `-` | one version of one F7 tariff band | `jobs.dimensions` | US-52 |
+| [`dim_customer`](#dim_customer) | `curated` | `-` | one contract version of one customer (type 2) | `jobs.dimensions` | US-52 |
+| [`dim_meter`](#dim_meter) | `curated` | `-` | one meter | `jobs.dimensions` | US-52 |
+| [`dim_transformer`](#dim_transformer) | `curated` | `-` | one transformer with its circuit | `jobs.dimensions` | US-52 |
+| [`dim_dr_event`](#dim_dr_event) | `curated` | `-` | one demand-response event | `jobs.dimensions` | US-52 |
 
 ## interval_30min
 
