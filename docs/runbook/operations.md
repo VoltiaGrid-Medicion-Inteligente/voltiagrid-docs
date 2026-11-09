@@ -23,11 +23,27 @@ Source: `infra/docs/DEPLOY.md` and `infra/scripts/deploy.ps1`.
 
 Source: the DAG `voltiagrid_history` (voltiagrid-data, `dags/voltiagrid_history.py`).
 
+Before you start, with Airflow in ECS mode (`VOLTIA_RUNTIME=ecs`):
+
+- Leave the daily DAG `voltiagrid_readings` **paused**. Unpaused, it starts its own runs on Fargate as soon as Airflow
+  comes up.
+- Log in with `aws sso login` right before you trigger the run. The SSO session of the laptop lasts **1 hour**. When it
+  expires, Airflow stops seeing the Fargate tasks while they keep running, and a retry would start a second task. Log
+  in again within the hour while the run lasts. The full history takes about an hour of Spark (cleaning 26 min,
+  filling 24.7 min, monthly consumption 6.1 min).
+
 1. In the Airflow UI, open the DAG `voltiagrid_history` and click **Trigger DAG w/ config**.
 2. Fill in the parameters:
    - `ingest_date`: the date of the F1 upload (format `YYYY-MM-DD`).
-   - `mode`: `full` (all 112 blocks) or `dev` (the 4 blocks of the development subset). On the workers, use `dev`.
+   - `mode`: which raw files are read. `full` reads all 112 blocks; `dev` reads only the 4 blocks of the development
+     subset. On the workers (local mode), use `dev`.
 3. Check: the cleaning and the filling tasks end green, and the row count of the period matches the control report (`jobs.control_counts`).
+
+**`mode` limits what is read, not what is rewritten.** The cleaning rewrites every date that appears in the files it
+reads, and merges in what clean already holds for those dates. The 4 dev blocks have readings on every date of the
+history, so on a lake that already holds the full history, `mode=dev` rewrites the whole history too. That is what
+happened on 9 November 2026: 167,817,209 rows, the same as `full` (KAN-340). On a lake that holds only the dev subset,
+`dev` processes only those 4 blocks.
 
 **Reprocessing is safe:** the load is idempotent, so running it twice does not duplicate rows. If the period already exists, it is overwritten.
 
