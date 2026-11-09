@@ -14,7 +14,11 @@ sidebar_position: 4
 |---|---|---|---|
 | bootstrap | `infra/bootstrap` | 6 | Created once, never destroyed |
 | data | `infra/envs/data` | 22 | Persistent (3-year data lake) |
-| dev | `infra/envs/dev` | 93 | Created for a test window, destroyed after it |
+| dev | `infra/envs/dev` | 106 (116 with monitoring) | Created for a test window, destroyed after it |
+
+Measured in the window of 8-9 November: the first apply created **106** resources (the 93 listed below, the 7 of the
+customer portal and the 6 of the Spark task module), the monitoring module of KAN-333 added **10**, and
+`destroy.ps1` removed **116**.
 
 Regenerate the counts from the state after an apply (PowerShell):
 
@@ -82,6 +86,26 @@ terraform -chdir=infra/envs/dev state list |
 | | `aws_lb_target_group` + `aws_lb_listener_rule` | 4 + 4 | `voltiagrid-dev-{consumption,control-center,inventory,f5}` | One per API, routing by path |
 
 By area: network 18, security 23, admin 4, database 3, secrets 5, images 10, logs 5, compute 15, load balancer 10 = **93**.
+
+### Customer portal (7, KAN-354)
+
+| Resource type | Count | Name | Why |
+|---|---|---|---|
+| `aws_s3_bucket` | 1 | `voltiagrid-dev-portal-<account id>` | Static files of the portal; `force_destroy` so the destroy removes it ([ADR-015](../adr/adr-015-customer-portal-static-site.md)) |
+| `aws_s3_bucket_ownership_controls` + `_public_access_block` + `_server_side_encryption_configuration` | 1 + 1 + 1 | — | Private, ACLs disabled, encrypted |
+| `aws_s3_bucket_policy` | 1 | — | Only the CloudFront distribution reads it |
+| `aws_cloudfront_origin_access_control` | 1 | — | CloudFront signs its requests to the bucket |
+| `aws_cloudfront_distribution` | 1 | — | HTTPS with the default certificate, fallback to `index.html` |
+
+### Monitoring (10, KAN-333 and KAN-334)
+
+| Resource type | Count | Name | Why |
+|---|---|---|---|
+| `aws_cloudwatch_dashboard` | 1 | `voltiagrid-dev-operations` | ALB 5XX and p95, CPU per ECS service, RDS CPU and free storage |
+| `aws_cloudwatch_metric_alarm` | 8 | `voltiagrid-dev-{alb-5xx,alb-latency-p95,ecs-cpu-<service>,rds-cpu,rds-free-storage}` | Thresholds of US-63 (p95 at most 0.5 s, RNF-04) |
+| `aws_sns_topic` | 1 | `voltiagrid-dev-alerts` | Target of every alarm; the e-mail subscription is optional (`alarm_email`) |
+
+Applied in the window of 9 November from the code of the sprint guide; it reaches `develop` with the pull request of KAN-333.
 
 ## IAM
 

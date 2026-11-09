@@ -92,6 +92,7 @@ flowchart LR
     APIC["Customer API<br/>FastAPI + JWT"]
     APICC["Control center API<br/>FastAPI + JWT"]
     PBI["Dimensional model<br/>+ Power BI"]
+    PORTAL["Customer portal<br/>React on S3 + CloudFront"]
   end
 
   F3 --> RMQ
@@ -108,9 +109,12 @@ flowchart LR
   RDS --> APIC
   RDS --> APICC
   CUR --> PBI
+  PORTAL -.->|"/me/... (HTTPS pending, ADR-016)"| APIC
 ```
 
-**7. Operations** is cross-cutting and applies to every layer above: GitHub Actions (lint, tests, secret scanning, image build), ECR, IAM with least privilege, VPC, resource tags, and CloudWatch logs, metrics and alarms.
+**7. Operations** is cross-cutting and applies to every layer above: GitHub Actions (lint, tests, secret scanning, image build), ECR, IAM with least privilege, VPC, resource tags, and CloudWatch logs, a dashboard (`voltiagrid-dev-operations`: ALB 5XX and p95, CPU per ECS service, RDS CPU and storage) and alarms that notify through SNS (US-63).
+
+The customer portal (US-69) is a static single-page app: CloudFront serves it from a private S3 bucket ([ADR-015](../adr/adr-015-customer-portal-static-site.md)), and the browser calls the customer API with the customer's JWT. The dotted line is still open: the ALB answers over HTTP, so the portal on CloudFront cannot call it until the API is served over HTTPS ([ADR-016](../adr/adr-016-https-for-the-api.md)).
 
 ## Layers
 
