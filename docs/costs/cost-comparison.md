@@ -65,7 +65,8 @@ team decision.
 | Total per month | 316.30 USD | 282.27 USD | **+34.03 USD** |
 | What changes | S3 at 36.01 USD: one raw JSON object per message, 4.5 M PUT per month and 22.50 USD of requests | S3 at 1.98 USD: one gzip object per batch of 50 messages | |
 
-The difference is almost all S3 requests. Changing the raw layout (one object per 50 messages, compressed) saves about
+The difference is S3: about 22 USD of PUT requests and about 12 USD of storage, because raw objects of 6.7 KB never move
+to cheaper classes and are not compressed. Changing the raw layout (one object per 50 messages, compressed) saves about
 34 USD per month at 200,000 meters. It does not change the daily close, which needs `estimate_gaps` on 16 vCPU in both
 scenarios to stay under 45 minutes.
 
