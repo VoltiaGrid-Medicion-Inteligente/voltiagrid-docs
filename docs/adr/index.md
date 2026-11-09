@@ -25,6 +25,8 @@ An ADR records one important decision: the context, what we chose, the alternati
 | [ADR-012](./adr-012-terraform.md) | Terraform in `voltiagrid-api/infra`, state in S3, two stacks | Accepted |
 | [ADR-013](./adr-013-admin-instance.md) | One small EC2 instance as the admin door to the private network | Accepted |
 | [ADR-014](./adr-014-runtime-adjustments.md) | RabbitMQ and Airflow on one EC2 instance, on-demand Spark, F5 on EKS | Accepted |
+| [ADR-015](./adr-015-customer-portal-static-site.md) | The customer portal as a static site on S3 + CloudFront | Accepted |
+| [ADR-016](./adr-016-https-for-the-api.md) | HTTPS for the customer API through the portal's CloudFront distribution | Proposed |
 
 **Status values:** *Proposed* (written, pending team review), *Accepted* (agreed by the team), *Accepted, amended by ADR-XXX* (still valid; a newer ADR changes one part and the old one says which at the end), *Superseded by ADR-XXX*.
 

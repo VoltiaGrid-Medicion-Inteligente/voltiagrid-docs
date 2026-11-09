@@ -23,9 +23,10 @@ This page lists every component of v1, how they talk to each other (synchronous 
 | S3 data lake | raw, clean and curated layers in Parquet, with lifecycle rules for 3-year retention | S3 | Consumers, Spark, Power BI | P2 / P3 |
 | Customer consumption API | Daily consumption per band for the authenticated customer (p95 of 500 ms or less) | ECS Fargate behind ALB | RDS | P1 |
 | Control center API | Aggregated load per transformer | ECS Fargate behind ALB | RDS | P1 |
+| Customer portal | Contract, network and consumption of the logged-in customer (US-69) | Static files on S3 behind CloudFront ([ADR-015](../adr/adr-015-customer-portal-static-site.md)) | Customer consumption API | Sharon (US-69) |
 | Dimensional model and Power BI | Answers the six business questions | Power BI Desktop / Service | S3 curated | P4 |
 | CI/CD | Lint, tests, secret scanning, image build and deploy | GitHub Actions | GitHub, ECR, ECS | P3 |
-| Observability | Logs, metrics (queue depth, daily close duration) and at least one alarm | CloudWatch | Every component | P3 |
+| Observability | Logs, the dashboard `voltiagrid-dev-operations` and 8 alarms (ALB 5XX and p95, CPU per ECS service, RDS CPU and free storage) notifying an SNS topic | CloudWatch + SNS (`infra/modules/monitoring`, US-63) | Every component | P3 |
 
 ## Synchronous vs asynchronous
 
@@ -38,6 +39,7 @@ This page lists every component of v1, how they talk to each other (synchronous 
 | Customer → Customer consumption API | **Synchronous** (HTTP + JWT) | A person is waiting for the answer (p95 of 500 ms or less), so it reads pre-aggregated data from RDS. |
 | Operator → Control center API | **Synchronous** (HTTP + JWT) | Same: reads pre-aggregated load per transformer, refreshed every 30 minutes; overload alerts are raised by the 30-minute process. |
 | Power BI → S3 curated | **Synchronous** on refresh | The dataset is refreshed after the daily close. |
+| Browser (portal) → Customer consumption API | **Synchronous** (HTTPS page, HTTP + JWT to the API) | The portal only reads the customer's own data (`/me/...`). From CloudFront it needs the API over HTTPS ([ADR-016](../adr/adr-016-https-for-the-api.md)); locally it goes through the Vite proxy. |
 
 ## Main flows
 
