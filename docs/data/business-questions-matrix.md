@@ -138,4 +138,15 @@ GROUP BY m.year_month, r.description;
 2. The control queries above run on the same tables (Athena or Spark SQL).
 3. Each dashboard visual shows the same filter and must give the same number; differences are logged and fixed before the demo.
 
+## Reconciliation, January 2013 (KAN-328)
+
+Control queries run with `python -m jobs.control_queries --question <n> --month 2013-01` on the local lake of
+9 November 2026, the same data loaded in the `.pbix`. The dashboard column is filled when the page shows the month.
+
+| # | Control query result | Dashboard | Match |
+|---|---|---|---|
+| 1 | 2,051.2426 kWh and 414.66 of amount; by band and tariff in *Consumption by band, socioeconomic group and tariff* | pending (page not built yet, KAN-320) | — |
+| 3 | Estimated half hours: TR-00000 7.40%, TR-00001 8.57%, TR-00002 7.95%, TR-00003 7.95% | pending | — |
+| 6 | 29 of 200 customers not billable (14.5%), 29 inspection orders, reason RN-04 | pending (page not built yet, KAN-321) | — |
+
 See the [dimensional model](./dimensional-model.md) for the full list of tables and grains.
