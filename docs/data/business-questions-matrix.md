@@ -141,12 +141,15 @@ GROUP BY m.year_month, r.description;
 ## Reconciliation, January 2013 (KAN-328)
 
 Control queries run with `python -m jobs.control_queries --question <n> --month 2013-01` on the local lake of
-9 November 2026, the same data loaded in the `.pbix`. The dashboard column is filled when the page shows the month.
+9 November 2026, the same data loaded in the `.pbix`. The dashboard column was checked on 11 November 2026 against
+`voltiagrid.pbix`: its tables were read and the measures of each page (`Total kWh`, `Total amount`, `No facturables`,
+`% no facturables`, `Max load`, `Correlación temp-carga`) were applied to them. The rendered visuals were not compared.
 
 | # | Control query result | Dashboard | Match |
 |---|---|---|---|
-| 1 | 2,051.2426 kWh and 414.66 of amount; by band and tariff in *Consumption by band, socioeconomic group and tariff* | pending (page not built yet, KAN-320) | — |
-| 3 | Estimated half hours: TR-00000 7.40%, TR-00001 8.57%, TR-00002 7.95%, TR-00003 7.95% | pending | — |
-| 6 | 29 of 200 customers not billable (14.5%), 29 inspection orders, reason RN-04 | pending (page not built yet, KAN-321) | — |
+| 1 | 2,051.2426 kWh and 414.66 of amount; by band and tariff in *Consumption by band, socioeconomic group and tariff* | 2,051.2426 kWh and 414.66; the six band and tariff rows equal; by ACORN: Affluent 829.6065, Adversity 649.1446, Comfortable 557.9515, Unknown 14.5400 | Yes |
+| 3 | Estimated half hours: TR-00000 7.40%, TR-00001 8.57%, TR-00002 7.95%, TR-00003 7.95% | pending: `voltiagrid.pbix` has no page for question 3 | — |
+| 6 | 29 of 200 customers not billable (14.5%), 29 inspection orders, reason RN-04 | 29 of 200 (14.5%), 29 orders, the same reason | Yes |
+| 5 | Read of `fact_load_weather_hourly` (no control query): 288 rows, highest load 23.3%, correlation −0.102 | 288 rows, `Max load` 0.2328, `Correlación temp-carga` −0.102 | Yes |
 
 See the [dimensional model](./dimensional-model.md) for the full list of tables and grains.
