@@ -217,6 +217,44 @@ simulator's defects (`missing_day 4`, `gap 3`, `null 1`, `out_of_bounds 3`, `off
 | Portal | The curve of 2013-01-01 starts at 0.043 kWh and shows "Sin lecturas estimadas" | Confirmed |
 | Power BI | The same 0.043 kWh after the model refresh | Pending KAN-327 |
 
+## Losses: show the detection with the injection scenario (US-62)
+
+January 2013 has no losses to detect: the F5 simulator delivers exactly what the meters consume, so the *Losses per
+transformer* page shows about −0.6% in the month and no suspicious transformer. The small negative loss comes from the
+estimated readings, which add a little energy. To show that detection works, run the scenario of
+*Data → Loss-injection scenario* (KAN-331/332) live. It injects 15% in F5 for `TR-00001` on 2013-01-02 to 2013-01-04.
+
+From `voltiagrid-data`, with F5 running (`docker compose up -d api-transformer-metering` in `voltiagrid-api`):
+
+```powershell
+python -m jobs.loss_injection_scenario --lake ..\voltiagrid-api\lake --from 2013-01-02 --days 3 --transformers TR-00001 --loss-pct 0.15
+```
+
+Expected last line: `loss-injection: TR-00001 suspicious on the last day, their meters evaluated`.
+
+The scenario rewrites F5 raw, `transformer_losses` and `suspicious_meters` of those three days in the lake. It removes
+the injection when it ends, also when a step fails. Afterwards, re-run the normal jobs for the three days, so the
+dashboard keeps the real January:
+
+```powershell
+python -m jobs.fetch_f5 --date 2013-01-02 --date 2013-01-03 --date 2013-01-04 --lake ..\voltiagrid-api\lake
+```
+
+```powershell
+python -m jobs.transformer_losses --date 2013-01-02 --date 2013-01-03 --date 2013-01-04 --lake ..\voltiagrid-api\lake
+```
+
+```powershell
+python -m jobs.suspicious_meters --date 2013-01-02 --date 2013-01-03 --date 2013-01-04 --lake ..\voltiagrid-api\lake
+```
+
+```powershell
+python -m jobs.fact_transformer_loss --date 2013-01-02 --date 2013-01-03 --date 2013-01-04 --lake ..\voltiagrid-api\lake
+```
+
+This sequence has not been rehearsed with the January data yet. Rehearse it once before the demo, and check that the
+*Losses per transformer* page still shows −190.54 kWh for the month after refreshing.
+
 ## If something fails live
 
 - A task of the DAG fails: runbook, section 4 (Recover a failed DAG). Plan B: run steps 4 to 6 as the three
