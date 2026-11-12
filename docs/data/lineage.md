@@ -20,10 +20,9 @@ flowchart LR
     F1[F1 readings history]
     F3[F3 readings messages]
     F2[F2 weather]
-    F4[F4 inventory DB]
+    F4[F4 meters and contracts CSV]
     F5[F5 transformer energy]
     F7[F7 tariff bands]
-    DR[F-DR events]
   end
 
   subgraph Clean
@@ -44,6 +43,7 @@ flowchart LR
   end
 
   PBI[Power BI pages]
+  CSV[Quarterly CSV KAN-314]
 
   F1 -->|clean_readings| IV
   F3 -->|clean_readings| IV
@@ -67,6 +67,8 @@ flowchart LR
   BS --> IO
   TL --> FTL
   ST --> FTL
+  IF --> FTL
+  F4 --> FTL
   F5 --> FTL
   F7 --> FTL
   F5 --> FLW
@@ -84,11 +86,15 @@ flowchart LR
   DRE --> DIM
   TL --> QR
   IF --> QR
+  F4 --> QR
+  QR --> CSV
   FTL --> PBI
   FLW --> PBI
   FDR --> PBI
   FCI --> PBI
-  QR --> PBI
+  FC --> PBI
+  BS --> PBI
+  IO --> PBI
   DIM --> PBI
 ```
 
@@ -101,14 +107,14 @@ flowchart LR
 | `circuit_load` | curated | `jobs.circuit_load` (US-33) | `interval_30min`, F4 meters | RN-08 (events), `dr_events` |
 | `transformer_losses` | curated | `jobs.transformer_losses` (US-37, RN-06) | F5, `interval_30min_filled`, F4 meters | `suspicious_transformers`, `fact_transformer_loss_daily`, `quarterly_report_transformers` |
 | `suspicious_transformers` | curated | `jobs.transformer_losses` (US-37, RN-06) | `transformer_losses` | `suspicious_meters`, `fact_transformer_loss_daily` |
-| `suspicious_meters` | curated | `jobs.suspicious_meters` (US-38, RN-07) | `suspicious_transformers`, `interval_30min_filled`, F4 | inspection (not in Power BI) |
-| `fact_consumption_interval` | curated | `jobs.fact_consumption_interval` (US-48) | `interval_30min_filled`, F4 meters, F7 | Power BI consumption (Q1, Q6 pending) |
-| `fact_consumption` (monthly) | curated | `jobs.fact_consumption` (US-35) | `interval_30min_filled`, F4 meters, F7 | `billing_status` |
-| `billing_status` | curated | `jobs.billing` (US-36, RN-04) | `fact_consumption` | `inspection_orders` |
-| `inspection_orders` | curated | `jobs.billing` (US-36, RN-04) | `fact_consumption` | operations |
-| `fact_transformer_loss_daily` | curated | `jobs.fact_transformer_loss` (US-51, RN-06) | `transformer_losses`, `suspicious_transformers`, F5, F7 | Power BI losses page (Q2) |
+| `suspicious_meters` | curated | `jobs.suspicious_meters` (US-38, RN-07) | `suspicious_transformers`, `interval_30min_filled`, F4 meters and contracts (RN-07, contract change) | inspection (not in Power BI) |
+| `fact_consumption_interval` | curated | `jobs.fact_consumption_interval` (US-48) | `interval_30min_filled`, F4 meters, F7 | Power BI interval detail (demo step 9) |
+| `fact_consumption` (monthly) | curated | `jobs.fact_consumption` (US-35) | `interval_30min_filled`, F4 meters, F7 | Power BI Q1 and Q3, `billing_status` |
+| `billing_status` | curated | `jobs.billing` (US-36, RN-04) | `fact_consumption` | `inspection_orders`, Power BI Q6 |
+| `inspection_orders` | curated | `jobs.billing` (US-36, RN-04) | `fact_consumption` | operations, Power BI Q6 |
+| `fact_transformer_loss_daily` | curated | `jobs.fact_transformer_loss` (US-51, RN-06) | `transformer_losses`, `suspicious_transformers`, `interval_30min_filled`, F4 meters, F5, F7 | Power BI losses page (Q2) |
 | `fact_load_weather_hourly` | curated | `jobs.fact_load_weather` (US-53, PR data #78) | F5, F2, F4 meters | Power BI load and weather page (Q5, pending) |
-| `quarterly_report_transformers` | curated | `jobs.quarterly_report` (US-54) | `fact_transformer_loss_daily`, `interval_30min_filled` | quarterly CSV (KAN-314) |
+| `quarterly_report_transformers` | curated | `jobs.quarterly_report` (US-54) | `fact_transformer_loss_daily`, `interval_30min_filled`, F4 meters | quarterly CSV (KAN-314) |
 | `dr_events` | curated | `jobs.dr_events` (US-43, RN-08) | F2, `circuit_load` | `dr_participants`, `dim_dr_event` |
 | `dr_participants`, `dr_notifications` | curated | `jobs.dr_events` (US-43) | `dr_events`, F4 meters and contracts | `dr_settlement` |
 | `dr_settlement` | curated | `jobs.dr_settlement` (US-44, RN-09) | `dr_participants`, `dr_events`, `interval_30min_filled`, F7 | `fact_dr_participation` |
@@ -125,10 +131,9 @@ flowchart LR
 | F1 | Historical readings (2013) | raw readings, read by `clean_readings` |
 | F2 | Hourly weather | raw weather, read by `dr_events` and `fact_load_weather` |
 | F3 | Readings messages from the concentrators | raw readings, read by `clean_readings` |
-| F4 | Inventory database (customers, contracts, meters, transformers, circuits) | PostgreSQL, read with `jobs.inventory` |
+| F4 | Inventory database (customers, contracts, meters, transformers, circuits) | raw F4 meters and contracts (CSV), exported from PostgreSQL by `jobs.inventory export` |
 | F5 | Energy delivered to each transformer (15-minute rows) | raw F5, read by `transformer_losses` and `fact_load_weather` |
 | F7 | Tariff bands and prices | `tariffs.csv`, read by `tariff_bands` |
-| DR | Demand-response events | written by the event jobs, read by `dr_events` |
 
 ## Differences with the dimensional model
 
