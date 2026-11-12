@@ -1,11 +1,13 @@
 ---
-title: Dimensional model (draft)
+title: Dimensional model
 sidebar_position: 1
 ---
 
-# Dimensional model (draft)
+# Dimensional model
 
-> US-10 (KAN-84), T-10.1. Star schema built by Spark in the **S3 curated** layer and read by Power BI. Draft for team review: names and grains may change when the Spark jobs exist.
+> US-10 (KAN-84), T-10.1; final version for US-59 (KAN-326), November 2026. Star schema built by Spark in the **S3
+> curated** layer and read by Power BI. The first diagram is the design; **As built** below is what the curated layer and
+> `voltiagrid-final.pbix` actually have, and wins where they differ. Lineage of every table: *Lineage of the analytics model*.
 
 ## Design choices
 
@@ -85,7 +87,7 @@ erDiagram
 | `fact_consumption` | one **meter** in one **30-minute interval** | `energy_kwh`, `energy_cost` (kWh × band price), `is_estimated` (0/1), `estimation_method` (none, interpolation, profile) | Filled readings (clean + estimated, US-34) + F4 + F7 | RN-01, RN-02, RN-03, RN-05 |
 | `fact_transformer_loss_daily` | one **transformer** on one **day** | `delivered_kwh`, `metered_kwh`, `loss_kwh`, `loss_pct`, `loss_cost`, `consecutive_days_over_12`, `is_suspicious` (0/1) | F5 + sum of `fact_consumption` | RN-06, RN-07 |
 | `fact_load_weather_hourly` | one **transformer** in one **hour** | `delivered_kwh`, `peak_kw`, `load_pct_capacity`, `temperature_c` | F5 + F2/F6 | RN-08 input |
-| `fact_dr_participation` | one **customer** in one **demand-response event** | `baseline_kwh`, `actual_kwh`, `savings_kwh`, `savings_pct`, `incentive_paid` (0/1), `incentive_amount` | Events + `fact_consumption` | RN-08, RN-09, RN-10 |
+| `fact_dr_participation` | one **customer** in one **demand-response event** | `baseline_kwh`, `actual_kwh`, `savings_kwh`, `savings_pct`, `incentive_paid` (0/1), `incentive_amount` | `dr_settlement` + `dr_events` + F4 (as built) | RN-08, RN-09, RN-10 |
 | `fact_billing_monthly` | one **customer** (meter) in one **month** | `total_kwh`, `total_readings`, `estimated_readings`, `estimated_pct`, `is_billable` (0/1), `inspection_order` (0/1) | Aggregate of `fact_consumption` | RN-04 |
 
 ## Built in the curated layer
@@ -96,6 +98,9 @@ model before merging; differences are listed.
 | Fact | Dataset and job | Keys | Review |
 |---|---|---|---|
 | `fact_consumption` | `curated/dataset=fact_consumption_interval/date=…`, `jobs.fact_consumption_interval` (US-48) | `date_key`, `time_key`, `meter_id`, `customer_code`, `transformer_code`, `band_name` | Grain and measures as designed. Named `_interval` because `curated/dataset=fact_consumption` already holds the monthly billing aggregate of US-35. Adds `tariff_valid_from` (which F7 period priced the row) and `interval_start`. Built from the filled readings, so estimated intervals are in the fact with `is_estimated = 1`. No orphan keys: meters that F4 does not have are left out and counted (as in the monthly fact of US-35), and the job stops if an interval has no F7 band. |
+| `fact_transformer_loss_daily` | `curated/dataset=fact_transformer_loss_daily/date=…`, `jobs.fact_transformer_loss` (US-51) | `date_key`, `transformer_code`, `circuit_code` | Grain and measures as designed, plus `estimated_kwh` and `suspicious_rank`. Built from `transformer_losses` and `suspicious_transformers`, which read F5 and the filled readings directly (not `fact_consumption`). |
+| `fact_load_weather_hourly` | `curated/dataset=fact_load_weather_hourly/date=…`, `jobs.fact_load_weather` (US-53) | `date_key`, `hour`, `transformer_code`, `circuit_code` | Transformer level (the open point is closed this way): load from F5, temperature from F2 (F6 is not used). Only complete hours (four 15-minute F5 rows) enter. |
+| `fact_billing_monthly` | two datasets: `curated/dataset=billing_status/month=…` (one row per customer and month, `is_billable`, `estimated_pct`, `inspection_order`) and `curated/dataset=inspection_orders/month=…` (one row per customer that cannot be billed), `jobs.billing` (US-36) | `customer_code`, `month` | Same grain and measures, split in two. There is no `dim_exclusion_reason`: the reason is the text column `reason` of `inspection_orders`. The monthly consumption the bills come from is `curated/dataset=fact_consumption` (customer, month, band). |
 | `fact_dr_participation` | `curated/dataset=fact_dr_participation/date=…`, `jobs.fact_dr_participation` (US-45) | `date_key`, `event_id`, `customer_code`, `circuit_code` | Grain and measures as designed. A participant without 5 baseline days (RN-09) keeps its row with null measures and `incentive_paid = 0`: it took part but could not be settled. Adds `circuit_code` (the circuit of the event). The events themselves are `curated/dataset=dr_events` (`dim_dr_event` of US-52 reads it: `event_id`, `circuit_code`, `start_ts`, `end_ts`, `duration_h`, `forecast_temp_c`, `projected_load_pct`, as designed). No orphan keys: the job stops if an event is not in `dr_events` or a customer is not in F4. |
 
 ## Dimensions
@@ -106,11 +111,11 @@ model before merging; differences are listed.
 | `dim_month` | one month | `year_month`, `month_name`, `quarter`, `year` | Generated (roll-up of `dim_date`) | No |
 | `dim_time_of_day` | one 30-minute slot (48 per day) | `slot` (0–47), `hh_mm`, `hour` | Generated | No |
 | `dim_tariff_band` | one band version | `band_name` (peak, intermediate, off-peak), `price_per_kwh`, `valid_from`, `valid_to` | F7 | Type 2 by effective date |
-| `dim_customer` | one customer contract version | `customer_code`, `acorn_group`, `acorn_grouped`, `tariff_type` (standard, dynamic), `contract_code`, `valid_from`, `valid_to`, `is_current` | F4 (`customer`, `contract`) | Type 2 on contract change |
+| `dim_customer` | one customer contract version | `customer_code`, `tariff_type` (standard, dynamic), `contract_code`, `valid_from`, `valid_to`, `is_current`; ACORN (`acorn_grouped`) as designed but not built: the F4 export does not select it, so Power BI takes it from the households file (`CU-` + `LCLid`) | F4 (`customer`, `contract`) | Type 2 on contract change |
 | `dim_meter` | one meter | `lclid`, `customer_code`, `transformer_code` | F4 (`meter`) | No |
 | `dim_transformer` | one transformer | `transformer_code`, `capacity_kva`, `circuit_code`, `circuit_capacity_kva` | F4 (`transformer`, `circuit`) | No |
 | `dim_dr_event` | one event | `event_id`, `circuit_code`, `start_ts`, `end_ts`, `duration_h`, `forecast_temp_c`, `projected_load_pct` | Demand-response job | No |
-| `dim_exclusion_reason` | one reason | `reason_code`, `description` (estimated readings over 10%, suspicious meter, no readings, invalid clock) | Static list | No |
+| `dim_exclusion_reason` | one reason | not built: the only reason produced is RN-04 (estimated readings over 10%), kept as text in `inspection_orders.reason` | — | No |
 
 ## Bus matrix
 
@@ -135,10 +140,9 @@ Which dimensions each fact uses:
 
 `fact_consumption` is partitioned by date in Parquet; Power BI imports aggregates and uses DirectQuery or aggregation tables only if the import gets too large.
 
-## Open points
+## Decisions on the open points
 
-- `fact_load_weather_hourly` at transformer level or circuit level (RN-08 evaluates circuit capacity).
-- Currency and rounding of `energy_cost`, `loss_cost` and `incentive_amount` (taken from F7 prices).
-- Whether `dim_meter` and `dim_customer` merge, since the pilot has one meter per customer.
-
-See the [business questions matrix](./business-questions-matrix.md) for how each question maps to these tables.
+- `fact_load_weather_hourly` is at **transformer** level; RN-08 still evaluates circuits through `circuit_load`.
+- Amounts keep the currency of the F7 prices, with no conversion; `energy_cost` has 4 decimals in the interval fact and
+  Power BI shows amounts with 2.
+- `dim_meter` and `dim_customer` stay separate: the pilot has one meter per customer, but the model allows more.
