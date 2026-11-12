@@ -28,7 +28,7 @@ percentage, highest first; slicer for month.
 
 ## Control
 `python -m jobs.control_queries --question 6 --month 2013-01` returns the customers by reason. For January 2013 the
-page must show **29 of 200 customers (14.5%)** not billable and 29 inspection orders, all with the reason
+page must show **65 of 200 customers (32.5%)** not billable and 65 inspection orders, all with the reason
 *estimated readings above 10% of the month (RN-04)*. The two counts (orders and `is_billable = false`) must agree.
 
 ## Screenshot

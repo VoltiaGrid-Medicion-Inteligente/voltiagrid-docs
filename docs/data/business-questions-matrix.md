@@ -140,16 +140,21 @@ GROUP BY m.year_month, r.description;
 
 ## Reconciliation, January 2013 (KAN-328)
 
-Control queries run with `python -m jobs.control_queries --question <n> --month 2013-01` on the local lake of
-9 November 2026, the same data loaded in the `.pbix`. The dashboard column was checked on 11 November 2026 against
-`voltiagrid.pbix`: its tables were read and the measures of each page (`Total kWh`, `Total amount`, `No facturables`,
-`% no facturables`, `Max load`, `Correlación temp-carga`) were applied to them. The rendered visuals were not compared.
+January 2013 closed on the local lake on 11 November 2026: 29 days, from 2013-01-01 to 2013-01-29 (2013-01-30 is
+incomplete in F3 and was left out). Control queries run with
+`python -m jobs.control_queries --question <n> --month 2013-01`. The dashboard column was read on 12 November 2026
+from the pages of `voltiagrid-final.pbix`, refreshed with the same data.
 
 | # | Control query result | Dashboard | Match |
 |---|---|---|---|
-| 1 | 2,051.2426 kWh and 414.66 of amount; by band and tariff in *Consumption by band, socioeconomic group and tariff* | 2,051.2426 kWh and 414.66; the six band and tariff rows equal; by ACORN: Affluent 829.6065, Adversity 649.1446, Comfortable 557.9515, Unknown 14.5400 | Yes |
-| 3 | Estimated half hours: TR-00000 7.40%, TR-00001 8.57%, TR-00002 7.95%, TR-00003 7.95% | pending: `voltiagrid.pbix` has no page for question 3 | — |
-| 6 | 29 of 200 customers not billable (14.5%), 29 inspection orders, reason RN-04 | 29 of 200 (14.5%), 29 orders, the same reason | Yes |
-| 5 | Read of `fact_load_weather_hourly` (no control query): 288 rows, highest load 23.3%, correlation −0.102 | 288 rows, `Max load` 0.2328, `Correlación temp-carga` −0.102 | Yes |
+| 1 | 30,159.6083 kWh and 6,057.97 of amount; by band and tariff in *Consumption by band, socioeconomic group and tariff* | 30,159.61 kWh and 6,057.97; the six band and tariff rows equal; by ACORN: Affluent 12,100.4223, Adversity 9,602.7042, Comfortable 8,244.9483, Unknown 211.5335 | Yes |
+| 3 | Estimated half hours: TR-00000 9.05%, TR-00001 9.14%, TR-00002 8.79%, TR-00003 9.48% (9.07% overall) | page *Reading quality*: the same four values and 9.07% overall | Yes |
+| 5 | Read of `fact_load_weather_hourly` (no control query): 2,784 rows, highest load 23.5%, correlation +0.01 | `Max load` 23.5%; `Correlación temp-carga` +0.006 with the default date range, which includes 2012-12-31 | Yes |
+| 6 | 65 of 200 customers not billable (32.5%), 65 inspection orders, reason RN-04 | 65 of 200 (32.5%), 65 orders, the same reason | Yes |
+
+Question 2 is checked against `fact_transformer_loss_daily` on its own page (−0.64% loss in the month, no suspicious
+transformer: the F5 simulator injects no losses outside the scenario of KAN-331). Question 4 has no events in January
+(highest circuit load 7%, threshold 85%); its page needs the events of the heat-wave day of July 2013, still to be
+added to `voltiagrid-final.pbix`.
 
 See the [dimensional model](./dimensional-model.md) for the full list of tables and grains.
