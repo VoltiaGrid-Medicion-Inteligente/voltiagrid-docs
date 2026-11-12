@@ -24,10 +24,10 @@ transformer; a line of load and temperature by hour of the day; slicers for tran
 There is no control query for question 5 in `jobs.control_queries`; the check is a direct read of the fact. With
 the data of the local lake of 9 November 2026 the page must show:
 
-- 288 rows: 4 transformers, dates 2012-12-31, 2013-01-01 and 2013-01-03.
-- Highest load 23.3% of capacity, `TR-00000` on 2012-12-31 at 19:00, with 5.0 °C.
-- Temperature between 3.3 and 11.4 °C.
-- Correlation between temperature and load: −0.102. In these winter days the relation is weak; the heat-wave
+- 2,784 rows for January 2013: 4 transformers, 29 days, 24 hours (2,880 with 2012-12-31).
+- Highest load 23.5% of capacity, `TR-00000` on 2013-01-09 at 19:00, with 5.0 °C.
+- Temperature between −3.9 and 13.1 °C.
+- Correlation between temperature and load: +0.01 (+0.006 with 2012-12-31). In winter the relation is weak; the heat-wave
   scenario of demand response is where a positive relation would show.
 
 ## Screenshot

@@ -21,16 +21,17 @@ total amount.
 
 ## Control
 `python -m jobs.control_queries --question 1 --month 2013-01` returns band and tariff type (the control query has
-no ACORN group). For January 2013 the page must show 2,051.2426 kWh and 414.66 of amount in total, and:
+no ACORN group). For January 2013 (29 days, 2013-01-01 to 2013-01-29) the page must show 30,159.6083 kWh and 6,057.97 of
+amount in total, and:
 
 | Band | Tariff | kWh | Amount |
 |---|---|---|---|
-| intermediate | dynamic | 118.0305 | 21.23 |
-| intermediate | standard | 592.7514 | 106.73 |
-| off-peak | dynamic | 106.5395 | 12.77 |
-| off-peak | standard | 534.8811 | 64.20 |
-| peak | dynamic | 111.9152 | 33.59 |
-| peak | standard | 587.1249 | 176.14 |
+| intermediate | dynamic | 1,735.2865 | 312.34 |
+| intermediate | standard | 8,774.7773 | 1,579.47 |
+| off-peak | dynamic | 1,581.3117 | 189.76 |
+| off-peak | standard | 8,022.6393 | 962.79 |
+| peak | dynamic | 1,654.2119 | 496.25 |
+| peak | standard | 8,391.3816 | 2,517.36 |
 
 The ACORN split adds up to the same totals.
 
