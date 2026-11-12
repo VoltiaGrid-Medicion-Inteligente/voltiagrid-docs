@@ -84,7 +84,7 @@ flowchart LR
   F4 --> DIM
   F7 --> DIM
   DRE --> DIM
-  TL --> QR
+  FTL --> QR
   IF --> QR
   F4 --> QR
   QR --> CSV
@@ -102,18 +102,18 @@ flowchart LR
 
 | Table (lake dataset) | Layer | Written by | Reads | Used by |
 |---|---|---|---|---|
-| `interval_30min` | clean | `jobs.clean_readings` (US-30) | F1 and F3 readings | `estimate_gaps`, `circuit_load`, `transformer_losses` |
+| `interval_30min` | clean | `jobs.clean_readings` (US-30) | F1 and F3 readings | `estimate_gaps`, `circuit_load` |
 | `interval_30min_filled` | clean | `jobs.estimate_gaps` (US-34, RN-03) | `interval_30min` | all consumption, load and loss jobs |
 | `circuit_load` | curated | `jobs.circuit_load` (US-33) | `interval_30min`, F4 meters | RN-08 (events), `dr_events` |
-| `transformer_losses` | curated | `jobs.transformer_losses` (US-37, RN-06) | F5, `interval_30min_filled`, F4 meters | `suspicious_transformers`, `fact_transformer_loss_daily`, `quarterly_report_transformers` |
+| `transformer_losses` | curated | `jobs.transformer_losses` (US-37, RN-06) | F5, `interval_30min_filled`, F4 meters | `suspicious_transformers`, `fact_transformer_loss_daily` |
 | `suspicious_transformers` | curated | `jobs.transformer_losses` (US-37, RN-06) | `transformer_losses` | `suspicious_meters`, `fact_transformer_loss_daily` |
 | `suspicious_meters` | curated | `jobs.suspicious_meters` (US-38, RN-07) | `suspicious_transformers`, `interval_30min_filled`, F4 meters and contracts (RN-07, contract change) | inspection (not in Power BI) |
-| `fact_consumption_interval` | curated | `jobs.fact_consumption_interval` (US-48) | `interval_30min_filled`, F4 meters, F7 | Power BI interval detail (demo step 9) |
-| `fact_consumption` (monthly) | curated | `jobs.fact_consumption` (US-35) | `interval_30min_filled`, F4 meters, F7 | Power BI Q1 and Q3, `billing_status` |
+| `fact_consumption_interval` | curated | `jobs.fact_consumption_interval` (US-48) | `interval_30min_filled`, F4 meters, F7 | Power BI Q3 (reading quality) and interval detail (demo) |
+| `fact_consumption` (monthly) | curated | `jobs.fact_consumption` (US-35) | `interval_30min_filled`, F4 meters, F7 | Power BI Q1, `billing_status` |
 | `billing_status` | curated | `jobs.billing` (US-36, RN-04) | `fact_consumption` | `inspection_orders`, Power BI Q6 |
 | `inspection_orders` | curated | `jobs.billing` (US-36, RN-04) | `fact_consumption` | operations, Power BI Q6 |
 | `fact_transformer_loss_daily` | curated | `jobs.fact_transformer_loss` (US-51, RN-06) | `transformer_losses`, `suspicious_transformers`, `interval_30min_filled`, F4 meters, F5, F7 | Power BI losses page (Q2) |
-| `fact_load_weather_hourly` | curated | `jobs.fact_load_weather` (US-53, PR data #78) | F5, F2, F4 meters | Power BI load and weather page (Q5, pending) |
+| `fact_load_weather_hourly` | curated | `jobs.fact_load_weather` (US-53, PR data #78) | F5, F2, F4 meters | Power BI load and weather page (Q5) |
 | `quarterly_report_transformers` | curated | `jobs.quarterly_report` (US-54) | `fact_transformer_loss_daily`, `interval_30min_filled`, F4 meters | quarterly CSV (KAN-314) |
 | `dr_events` | curated | `jobs.dr_events` (US-43, RN-08) | F2, `circuit_load` | `dr_participants`, `dim_dr_event` |
 | `dr_participants`, `dr_notifications` | curated | `jobs.dr_events` (US-43) | `dr_events`, F4 meters and contracts | `dr_settlement` |
